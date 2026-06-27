@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Model/runtime artifacts
+backend/banking_intelligence.db
+backend/reports/*.pdf
+backend/models/*.pkl
+backend/models/metadata.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
