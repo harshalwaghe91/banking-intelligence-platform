@@ -10,6 +10,7 @@ The project is designed as a professional, resume-ready example of turning a mac
 - **Backend API:** https://banking-intelligence-api.onrender.com
 - **Interactive API docs:** https://banking-intelligence-api.onrender.com/docs
 - **Source code:** https://github.com/harshalwaghe91/banking-intelligence-platform
+- **IEEE research paper:** [Download DOCX](paper/AI_Powered_Banking_Intelligence_IEEE_Paper_Harshal_Waghe_Final.docx)
 
 > The Render free instance can take up to a minute to wake after a period of inactivity.
 

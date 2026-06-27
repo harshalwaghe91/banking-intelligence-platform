@@ -16,6 +16,10 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 
+# Research paper working files
+paper/*
+!paper/AI_Powered_Banking_Intelligence_IEEE_Paper_Harshal_Waghe_Final.docx
+
 # Editors / OS
 .DS_Store
 Thumbs.db
