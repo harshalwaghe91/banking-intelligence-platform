@@ -21,7 +21,7 @@ from database import (
     search_customer_profiles,
     seed_customer_profiles,
 )
-from prediction import predict_customer
+from prediction import predict_customer, predict_customers_batch
 from report_generator import REPORTS_DIR, generate_customer_report
 from schemas import CustomerAssessmentResponse, CustomerInput, PredictionResponse, ReportRequest
 from train_model import DATA_PATH, FEATURE_COLUMNS, load_or_create_data
@@ -128,18 +128,20 @@ async def batch_predict(file: UploadFile = File(...)) -> StreamingResponse:
         missing = set(FEATURE_COLUMNS) - set(frame.columns)
         if missing:
             raise HTTPException(status_code=400, detail=f"Missing columns: {sorted(missing)}")
+        if len(frame) > 10_000:
+            raise HTTPException(status_code=400, detail="CSV files are limited to 10,000 rows.")
         output = frame.copy()
-        results = []
-        for row in frame[FEATURE_COLUMNS].to_dict(orient="records"):
-            validated = CustomerInput(**row).model_dump()
-            result = predict_customer(validated)
-            results.append(result)
+        validated_rows = [
+            CustomerInput(**row).model_dump()
+            for row in frame[FEATURE_COLUMNS].to_dict(orient="records")
+        ]
+        results = predict_customers_batch(pd.DataFrame(validated_rows))
         output["ChurnPrediction"] = [item["churn_prediction"] for item in results]
         output["ChurnProbability"] = [item["churn_probability"] for item in results]
         output["RiskCategory"] = [item["risk_category"] for item in results]
         output["CustomerSegment"] = [item["customer_segment"] for item in results]
-        output["TopReason"] = [item["explainable_reasons"][0] for item in results]
-        output["Recommendation"] = [item["retention_recommendations"][0] for item in results]
+        output["TopReason"] = [item["top_reason"] for item in results]
+        output["Recommendation"] = [item["recommendation"] for item in results]
         buffer = io.StringIO()
         output.to_csv(buffer, index=False)
         return StreamingResponse(

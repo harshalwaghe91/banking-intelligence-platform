@@ -137,3 +137,47 @@ def predict_customer(customer: dict[str, Any]) -> dict[str, Any]:
         ),
         "retention_recommendations": generate_recommendations(customer, probability),
     }
+
+
+def predict_customers_batch(frame: pd.DataFrame) -> list[dict[str, Any]]:
+    """Score a portfolio in vectorized model calls suitable for hosted APIs."""
+    artifacts = load_artifacts()
+    features = frame[FEATURE_COLUMNS].copy()
+    transformed = artifacts["preprocessor"].transform(features)
+    probabilities = artifacts["model"].predict_proba(transformed)[:, 1]
+
+    segment_values = features[SEGMENT_COLUMNS]
+    segment_scaled = artifacts["segment_scaler"].transform(segment_values)
+    clusters = artifacts["kmeans"].predict(segment_scaled)
+    labels = artifacts["metadata"]["cluster_labels"]
+
+    results: list[dict[str, Any]] = []
+    for customer, probability, cluster in zip(
+        features.to_dict(orient="records"), probabilities, clusters
+    ):
+        probability = float(probability)
+        if not customer["IsActiveMember"]:
+            top_reason = "Customer inactivity is a strong churn-risk signal."
+        elif customer["NumOfProducts"] == 1:
+            top_reason = "Single-product usage indicates a less embedded banking relationship."
+        elif customer["Age"] >= 50:
+            top_reason = "The customer's age profile contributes to the estimated churn risk."
+        elif customer["Balance"] >= 150_000:
+            top_reason = "A high-value balance increases the impact of potential churn."
+        elif customer["CreditScore"] < 580:
+            top_reason = "The customer's credit-score profile contributes to the risk estimate."
+        else:
+            top_reason = "The score reflects the combined customer activity, product, balance, and tenure signals."
+
+        recommendations = generate_recommendations(customer, probability)
+        results.append(
+            {
+                "churn_prediction": int(probability >= 0.5),
+                "churn_probability": round(probability, 4),
+                "risk_category": risk_from_probability(probability),
+                "customer_segment": labels.get(str(int(cluster)), "Loyal Customers"),
+                "top_reason": top_reason,
+                "recommendation": recommendations[0],
+            }
+        )
+    return results
