@@ -34,7 +34,11 @@ export default function BatchPrediction() {
     try {
       const body = new FormData();
       body.append("file", file);
-      const response = await api.post("/batch-predict", body, { responseType: "blob" });
+      // Allow for a free hosted API to wake from sleep before processing the portfolio.
+      const response = await api.post("/batch-predict", body, {
+        responseType: "blob",
+        timeout: 180000,
+      });
       const url = URL.createObjectURL(response.data);
       const anchor = document.createElement("a");
       anchor.href = url; anchor.download = "customer_churn_predictions.csv"; anchor.click();
