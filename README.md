@@ -4,6 +4,15 @@ BankIQ is a complete full-stack banking analytics application that predicts cust
 
 The project is designed as a professional, resume-ready example of turning a machine-learning model into an understandable business product.
 
+## Live Deployment
+
+- **Live application:** https://banking-intelligence-platform.vercel.app
+- **Backend API:** https://banking-intelligence-api.onrender.com
+- **Interactive API docs:** https://banking-intelligence-api.onrender.com/docs
+- **Source code:** https://github.com/harshalwaghe91/banking-intelligence-platform
+
+> The Render free instance can take up to a minute to wake after a period of inactivity.
+
 ## Features
 
 - Customer churn prediction and probability scoring
@@ -179,7 +188,7 @@ The training dataset additionally includes `Exited`.
 3. Use the repository's `backend/render.yaml`, or configure:
    - Root directory: `backend`
    - Build command: `pip install -r requirements.txt && python train_model.py`
-   - Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - Start command: `python -m uvicorn main:app --host 0.0.0.0 --port $PORT`
    - Health check: `/health`
 4. Deploy and copy the Render service URL.
 
@@ -195,7 +204,7 @@ Note: SQLite and generated reports use the service filesystem. For durable produ
 4. Add an environment variable:
 
 ```env
-VITE_API_BASE_URL=https://your-render-service.onrender.com
+VITE_API_BASE_URL=https://banking-intelligence-api.onrender.com
 ```
 
 5. Redeploy after setting the variable.
